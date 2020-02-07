@@ -60,7 +60,6 @@ class Tracker():
         sub_image = image[y:y+h, x:x+w, :]
         resized_image = cv2.resize(sub_image, (self.pw, self.ph))
 
-
         if self.gray_feature:
             feature = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
             feature = feature.reshape(1, self.ph, self.pw) / 255.0 - 0.5
@@ -83,10 +82,12 @@ class Tracker():
 
     def gaussian_peak(self, w, h):
         output_sigma = 0.125
-        syh, sxh = h // 2, w // 2
         sigma = np.sqrt(w * h) / self.padding * output_sigma
-        y, x = np.mgrid[-syh + 1:syh + 1, -sxh + 1:sxh + 1]
-        g = np.exp(-((x**2 + y**2)/(2.0 * sigma**2)))
+        syh, sxh = h // 2, w // 2
+        y, x = np.mgrid[-syh:-syh+h, -sxh:-sxh+w]
+        x = x + (1 - w % 2) / 2.
+        y = y + (1 - h % 2) / 2.
+        g = 1. / (2. * np.pi * sigma ** 2) * np.exp(-((x**2 + y**2)/(2. * sigma**2)))
         return g
 
     def train(self, x, y, sigma, lambdar):
