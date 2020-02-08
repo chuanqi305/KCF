@@ -6,18 +6,20 @@ from numpy import conj, real
 class HOG():
     def __init__(self, winSize):
         self.winSize = winSize
-        blockSize = (8, 8)
-        blockStride = (4, 4)
-        cellSize = (4, 4)
-        nbins = 9
-        self.hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins)
+        self.blockSize = (8, 8)
+        self.blockStride = (4, 4)
+        self.cellSize = (4, 4)
+        self.nbins = 9
+        self.hog = cv2.HOGDescriptor(winSize, self.blockSize, self.blockStride,
+                                     self.cellSize, self.nbins)
 
     def get_feature(self, image):
         winStride = self.winSize
         hist = self.hog.compute(image, winStride, padding = (0, 0))
         w, h = self.winSize
-        w = w // 4 - 1
-        h = h // 4 - 1
+        sw, sh = self.blockStride
+        w = w // sw - 1
+        h = h // sh - 1
         return hist.reshape(w, h, 36).transpose(2, 1, 0)
 
     def show_hog(self, hog_feature):
